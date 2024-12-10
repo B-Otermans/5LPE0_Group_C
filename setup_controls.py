@@ -12,7 +12,7 @@ DIPOLE_SETTINGS = {"length": 250,
                    "gapwidth": 2,
                    "thickness": 0,
                    "matchingLEs": False}
-FRACTIONATED_DIPOLE_FUNCTION = antennas.fractionated_dipole
+FRACTIONATED_DIPOLE_CLASS = antennas.FractionatedDipole
 ARRAY_WIDTH = 240
 ARRAY_HEIGHT = 300
 
@@ -24,8 +24,7 @@ if __name__ == "__main__":
     # instantiate array
     frac_dipole_array = antennas.elipse_array(n_antennas=N_DIPOLES,
                                               antenna_parameters=DIPOLE_SETTINGS,
-                                              antenna_function=FRACTIONATED_DIPOLE_FUNCTION,
+                                              antenna_class=FRACTIONATED_DIPOLE_CLASS,
                                               array_width=ARRAY_WIDTH,
                                               array_height=ARRAY_HEIGHT)
     frac_dipole_array.Name = "Fractionated Dipole Array"
-    print(frac_dipole_array.Entities[0].Name)
