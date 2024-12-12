@@ -5,13 +5,13 @@ from s4l_v1 import Rotation, Translation
 import numpy as np
 
 
-class FractionatedDipole(model.EntityGroup):
+class FractionatedDipole:
 
     def __init__(self, length, name="Fractionated Dipole", width=10, x=0, y=0, gapwidth=2, thickness=0,
                  matchingLEs=False):
 
-        super().__init__()
-        self.Name = name
+        self.element_group = model.CreateGroup(name)
+        self.name = name
 
         hl = length / 2.0
         hgw = gapwidth / 2.0
@@ -51,30 +51,43 @@ class FractionatedDipole(model.EntityGroup):
             self.copper = model.Unite([self.copper] + pieces)
 
         for elem in [self.copper, self.source]:
-            self.Add(elem)
+            self.element_group.Add(elem)
         if matchingLEs:
             for elem in [self.pLE, self.sLE]:
-                self.Add(elem)
+                self.element_group.Add(elem)
+
+    def set_name(self, new_name):
+        self.name = new_name
+        self.element_group.Name = new_name
 
 
-def elipse_array(n_antennas: int, antenna_parameters: dict, antenna_class=FractionatedDipole,
-                 array_width: int = 240, array_height: int = 300) -> object:
+class ElipseArray:
+    def __init__(self, name: str, n_antennas: int, antenna_parameters: dict, antenna_class=FractionatedDipole,
+                 array_width: int = 240, array_height: int = 300):
 
-    # antenna angles start at 0.5pi such that the first antenna is above the face
-    angles = np.linspace(0.5*np.pi, 2.5*np.pi, n_antennas, endpoint=False)
-    coords_2D = np.vstack([np.array((array_width/2*np.cos(t), array_height/2*np.sin(t))) for t in angles])
+        self.entity_group = model.EntityGroup()
+        self.name = name
 
-    array_group = model.EntityGroup()
-    for i, coord in enumerate(coords_2D):
-        antenna = antenna_class(**antenna_parameters)
-        antenna.Name = f"{antenna.Name} {i+1}"
-        array_group.Add(antenna)
+        # antenna angles start at 0.5pi such that the first antenna is above the face
+        self.angles = np.linspace(0.5*np.pi, 2.5*np.pi, n_antennas, endpoint=False)
+        self.coords_2D = np.vstack([np.array((array_width/2*np.cos(t), array_height/2*np.sin(t))) for t in self.angles])
 
-        # move antenna to the correct position and orientation
-        rotation = Rotation(2, angles[i])
-        translation = Translation(Vec3(coord[0], coord[1], 0))
-        antenna.ApplyTransform(rotation)
-        antenna.ApplyTransform(translation)
+        self.antenna_list = []
+        self.entity_group.Name = self.name
+        for i, coord in enumerate(self.coords_2D):
+            antenna = antenna_class(**antenna_parameters)
+            antenna.set_name(f"{antenna.name} {i+1}")
+            self.antenna_list.append(antenna)
+            self.entity_group.Add(antenna.element_group)
 
-    print(f"Created: Elipse array with {n_antennas} '{antenna_class.__name__}' elements")
-    return array_group
+            # move antenna to the correct position and orientation
+            rotation = Rotation(2, self.angles[i])
+            translation = Translation(Vec3(coord[0], coord[1], 0))
+            antenna.element_group.ApplyTransform(rotation)
+            antenna.element_group.ApplyTransform(translation)
+
+        print(f"Created: Elipse array with {n_antennas} '{antenna_class.__name__}' elements")
+
+    def set_name(self, new_name):
+        self.name = new_name
+        self.entity_group.Name = new_name
