@@ -5,11 +5,11 @@ import s4l_v1.units as units
 import numpy as np
 
 
-def multiport_sim(antenna_group, scan_object=None, frequency: int = 298, simulation_time: int = 500):
+def multiport_sim(array, scan_object=None, frequency: int = 298, simulation_time: int = 500):
 
     # Instantiate the simulation
     simulation = emfdtd.MultiportSimulation()
-    simulation.Name = f"{antenna_group.Name} simulation at {frequency}MHz"
+    simulation.Name = f"{array.name} simulation at {frequency}MHz"
 
     # Editing SetupSettings
     setup_settings = simulation.SetupSettings
@@ -25,28 +25,27 @@ def multiport_sim(antenna_group, scan_object=None, frequency: int = 298, simulat
     automatic_voxeler_settings = [x for x in simulation.AllSettings if isinstance(x, emfdtd.AutomaticVoxelerSettings)
                                   and x.Name == "Automatic Voxeler Settings"][0]
 
-    for antenna in antenna_group:
-
+    for antenna in array.antenna_list:
         # Add conductor MaterialSettings
         conductor_material_settings = emfdtd.MaterialSettings()
-        conductor_material_settings.Name = f"PEC - {antenna.Name}"
+        conductor_material_settings.Name = f"PEC - {antenna.name}"
         conductor_material_settings.MaterialType = conductor_material_settings.MaterialType.enum.PEC
         simulation.Add(conductor_material_settings, antenna.copper)
 
         # Add EdgePortSettings
         edge_port_settings = emfdtd.EdgePortSettings()
-        edge_port_settings.Name = f"Edge Port - {antenna.Name}"
+        edge_port_settings.Name = f"Edge Port - {antenna.name}"
         edge_port_settings.CenterFrequency = frequency*1000000, units.Hz
         simulation.Add(edge_port_settings, antenna.source)
 
         # Add EdgeSensorSettings
         edge_sensor_settings = emfdtd.EdgeSensorSettings()
-        edge_sensor_settings.Name = f"Edge Sensor - {antenna.Name}"
+        edge_sensor_settings.Name = f"Edge Sensor - {antenna.name}"
         simulation.Add(edge_sensor_settings, antenna.source)
 
-        # Adding a new ManualGridSettings
-        antenna_grid_settings = simulation.AddManualGridSettings(antenna.copper, antenna.source)
-        antenna_grid_settings.Name = f"Antenna Grid - {antenna.Name}"
+        # Add ManualGridSettings for antenna
+        antenna_grid_settings = simulation.AddManualGridSettings([antenna.copper, antenna.source])
+        antenna_grid_settings.Name = f"Antenna Grid - {antenna.name}"
         antenna_grid_settings.MaxStep = np.array([1, 1, 1]), units.MilliMeters
         antenna_grid_settings.Resolution = np.array([0.05, 0.05, 0.05]), units.MilliMeters
 
@@ -66,6 +65,9 @@ def multiport_sim(antenna_group, scan_object=None, frequency: int = 298, simulat
 
         # Add components to voxeler
         simulation.Add(automatic_voxeler_settings, scan_object)
+
+    # Add OverallFieldSensor
+    simulation.AddOverallFieldSensorSettings()
 
     # Editing SolverSettings "Solver
     solver_settings = simulation.SolverSettings
