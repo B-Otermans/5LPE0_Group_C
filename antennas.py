@@ -12,6 +12,9 @@ class FractionatedDipole:
 
         self.element_group = model.CreateGroup(name)
         self.name = name
+        self.x = x
+        self.y = y
+        self.angle = 0
 
         hl = length / 2.0
         hgw = gapwidth / 2.0
@@ -65,29 +68,74 @@ class ElipseArray:
     def __init__(self, name: str, n_antennas: int, antenna_parameters: dict, antenna_class=FractionatedDipole,
                  array_width: int = 240, array_height: int = 300):
 
-        self.entity_group = model.EntityGroup()
         self.name = name
+        self.antenna_group = model.EntityGroup()
+        self.antenna_group.Name = self.name
+        self.antenna_list = []
+        self.spacer_list = []
 
         # antenna angles start at 0.5pi such that the first antenna is above the face
         self.angles = np.linspace(0.5*np.pi, 2.5*np.pi, n_antennas, endpoint=False)
         self.coords_2D = np.vstack([np.array((array_width/2*np.cos(t), array_height/2*np.sin(t))) for t in self.angles])
 
-        self.antenna_list = []
-        self.entity_group.Name = self.name
         for i, coord in enumerate(self.coords_2D):
             antenna = antenna_class(**antenna_parameters)
             antenna.set_name(f"{antenna.name} {i+1}")
             self.antenna_list.append(antenna)
-            self.entity_group.Add(antenna.element_group)
+            self.antenna_group.Add(antenna.element_group)
 
             # move antenna to the correct position and orientation
             rotation = Rotation(2, self.angles[i])
             translation = Translation(Vec3(coord[0], coord[1], 0))
             antenna.element_group.ApplyTransform(rotation)
             antenna.element_group.ApplyTransform(translation)
+            antenna.x, antenna.y = coord[0], coord[1]
+            antenna.angle = self.angles[i]
 
         print(f"Created: Elipse array with {n_antennas} '{antenna_class.__name__}' elements")
 
+    def add_spacers(self, length: int, width: int, height: int):
+        self.spacer_group = model.EntityGroup()
+        self.spacer_group.Name = "Spacer Group"
+
+        self.spacer_angles = np.linspace(0, 2*np.pi, len(self.angles), endpoint=False)
+
+        for i, coord in enumerate(self.coords_2D):
+            spacer = Spacer(length, width, height)
+            spacer.set_name(f"{spacer.name} {i+1}")
+            self.spacer_list.append(spacer)
+            self.spacer_group.Add(spacer.block)
+
+            # move spacer to the position and orientation of antennas
+            rotation = Rotation(2, self.spacer_angles[i])
+            translation = Translation(Vec3(coord[0], coord[1], 0))
+            spacer.block.ApplyTransform(rotation)
+            spacer.block.ApplyTransform(translation)
+            spacer.x, spacer.y = coord[0], coord[1]
+            spacer.angle = self.spacer_angles[i]
+
     def set_name(self, new_name):
         self.name = new_name
-        self.entity_group.Name = new_name
+        self.antenna_group.Name = new_name
+
+
+class Spacer:
+    def __init__(self, length: int, width: int, height: int, x: int = 0, y: int = 0, angle: float = 0):
+        self.length = length
+        self.width = width
+        self.height = height
+        self.x = x
+        self.y = y
+        self.angle = angle
+        self.block = model.CreateSolidBlock(Vec3(-width/2, -height, -length/2), Vec3(width/2, 0, length/2))
+        self.name = "Spacer"
+        self.block.Name = self.name
+
+        rotation = Rotation(2, angle)
+        translation = Translation(Vec3(x, y, 0))
+        self.block.ApplyTransform(rotation)
+        self.block.ApplyTransform(translation)
+
+    def set_name(self, new_name):
+        self.name = new_name
+        self.block.Name = new_name
