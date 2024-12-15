@@ -1,11 +1,17 @@
 import s4l_v1.simulation.emfdtd as emfdtd
+import s4l_v1.analysis as analysis
 import s4l_v1.document as document
 import s4l_v1.units as units
+import s4l_v1.model as model
+from s4l_v1 import Unit
 
 import numpy as np
 
 
-def multiport_sim(array, scan_object=None, frequency: int = 298, simulation_time: int = 500):
+def multiport_sim(array, phantom_name: str = "", frequency: int = 298, simulation_time: int = 500,
+                  cuda_kernel: bool = False,
+                  antenna_grid_max_step: float = 5.0, antenna_grid_resolution: float = 0.05,
+                  phantom_grid_max_step: float = 5.0, phantom_grid_resolution: float = 10.0) -> None:
 
     # Instantiate the simulation
     simulation = emfdtd.MultiportSimulation()
@@ -46,32 +52,39 @@ def multiport_sim(array, scan_object=None, frequency: int = 298, simulation_time
         # Add ManualGridSettings for antenna
         antenna_grid_settings = simulation.AddManualGridSettings([antenna.copper, antenna.source])
         antenna_grid_settings.Name = f"Antenna Grid - {antenna.name}"
-        antenna_grid_settings.MaxStep = np.array([1, 1, 1]), units.MilliMeters
-        antenna_grid_settings.Resolution = np.array([0.05, 0.05, 0.05]), units.MilliMeters
+        antenna_grid_settings.MaxStep = np.array([antenna_grid_max_step] * 3), units.MilliMeters
+        antenna_grid_settings.Resolution = np.array([antenna_grid_resolution] * 3), units.MilliMeters
 
         # Add components to voxeler
         simulation.Add(automatic_voxeler_settings, [antenna.copper, antenna.source])
 
     # Add phantom settings
-    if scan_object:
+    if phantom_name:
+        phantom = model.AllEntities()[phantom_name]
         # Add scan object MaterialSettings
-        simulation.Add(scan_object.material, scan_object.components)
+        phantom_material_settings = emfdtd.MaterialSettings()
+        phantom_material_settings.ElectricProps.Conductivity = 0.552035, Unit("S/m")
+        phantom_material_settings.ElectricProps.RelativePermittivity = 51.954693
+        phantom_material_settings.Name = "Phantom"
+
+        simulation.Add(phantom_material_settings, [phantom])
 
         # Add scan object ManualGridSettings
-        phantom_grid_settings = simulation.AddManualGridSettings(scan_object)
+        phantom_grid_settings = simulation.AddManualGridSettings([phantom])
         phantom_grid_settings.Name = "Phantom Grid"
-        phantom_grid_settings.MaxStep = np.array([5.0, 5.0, 5.0]), units.MilliMeters
-        phantom_grid_settings.Resolution = np.array([10.0, 10.0, 10.0]), units.MilliMeters
+        phantom_grid_settings.MaxStep = np.array([phantom_grid_max_step] * 3), units.MilliMeters
+        phantom_grid_settings.Resolution = np.array([phantom_grid_resolution] * 3), units.MilliMeters
 
         # Add components to voxeler
-        simulation.Add(automatic_voxeler_settings, scan_object)
+        simulation.Add(automatic_voxeler_settings, [phantom])
 
     # Add OverallFieldSensor
     simulation.AddOverallFieldSensorSettings()
 
     # Editing SolverSettings "Solver
-    solver_settings = simulation.SolverSettings
-    solver_settings.Kernel = solver_settings.Kernel.enum.Cuda
+    if cuda_kernel:
+        solver_settings = simulation.SolverSettings
+        solver_settings.Kernel = solver_settings.Kernel.enum.Cuda
 
     # Update the materials with the new frequency parameters
     simulation.UpdateAllMaterials()
@@ -81,3 +94,23 @@ def multiport_sim(array, scan_object=None, frequency: int = 298, simulation_time
 
     # Add the simulation to the UI
     document.AllSimulations.Add(simulation)
+
+
+def extract_multiport(simulation_name: str, normalized_power: int = 0):
+    # Add an EmMultiPortSimulationExtractor
+    simulation = document.AllSimulations[simulation_name]
+    em_multi_port_simulation_extractor = simulation.Results()
+
+    # Add an EmMultiPortSimulationCombiner
+    inputs = [output for output in em_multi_port_simulation_extractor.Outputs]
+    em_multi_port_simulation_combiner = analysis.extractors.EmMultiPortSimulationCombiner(inputs=inputs)
+
+    phases = np.linspace(0, 360, len(inputs), endpoint=False)
+    for i, channel in enumerate(em_multi_port_simulation_combiner.GetChannelWeights()):
+        power = normalized_power/len(inputs) if normalized_power else 0
+        em_multi_port_simulation_combiner.SetChannelWeight(channel, power, phases[i])
+
+    em_multi_port_simulation_combiner.UpdateAttributes()
+    em_multi_port_simulation_combiner.Update()
+
+    document.AllAlgorithms.Add(em_multi_port_simulation_combiner)
