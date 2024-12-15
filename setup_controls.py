@@ -13,7 +13,7 @@ CLEAR_LIST = ["Fractionated Dipole Array", "Spacer Group"]
 # array setup parameters
 ARRAY_NAME = "Fractionated Dipole Array"
 N_DIPOLES = 8
-DIPOLE_SETTINGS = {"length": 200,
+DIPOLE_SETTINGS = {"length": 350,
                    "width": 10,
                    "gapwidth": 2,
                    "thickness": 0,
