@@ -94,7 +94,7 @@ class ElipseArray:
 
         print(f"Created: Elipse array with {n_antennas} '{antenna_class.__name__}' elements")
 
-    def add_spacers(self, length: int, width: int, height: int):
+    def add_spacers(self, length: int, width: int, height: int) -> None:
         self.spacer_group = model.EntityGroup()
         self.spacer_group.Name = "Spacer Group"
 
@@ -114,7 +114,9 @@ class ElipseArray:
             spacer.x, spacer.y = coord[0], coord[1]
             spacer.angle = self.spacer_angles[i]
 
-    def set_name(self, new_name):
+        print(f' - Added spacers to "{self.name}"')
+
+    def set_name(self, new_name) -> None:
         self.name = new_name
         self.antenna_group.Name = new_name
 
