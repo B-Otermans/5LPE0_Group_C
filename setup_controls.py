@@ -8,7 +8,7 @@ CUSTOM_MODULES = [antennas, utils]
 for module in CUSTOM_MODULES:
     imp.reload(module)
 
-CLEAR_LIST = ["Fractionated Dipole Array", "Spacer Group"]
+CLEAR_LIST = ["Fractionated Dipole Array", "Spacer Group","BOX"]
 
 # array setup parameters
 ARRAY_NAME = "Fractionated Dipole Array"
@@ -19,13 +19,14 @@ DIPOLE_SETTINGS = {"length": 350,
                    "thickness": 0,
                    "matchingLEs": False}
 FRACTIONATED_DIPOLE_CLASS = antennas.FractionatedDipole
-ARRAY_WIDTH = 170  # in millimeters
-ARRAY_HEIGHT = 210  # in millimeters
+ARRAY_WIDTH = 185  # in millimeters
+ARRAY_HEIGHT = 230  # in millimeters
 SPACER_THICKNESS = 10  # in millimeters
 
 # phantom setup parameters
 PHANTOM_NAME = "Head Phantom"
 PHANTOM_SCALE_FACTOR = 1.00  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
+BOX = "BOX"
 
 # if-statement to only perform model setup when this file is run directly
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ for module in CUSTOM_MODULES:
 
 # simulation parameters
 PHANTOM_NAME = "Head Phantom"
+USE_BOX = True
 USE_CUDA = True
 # grid settings in millimeters
 GRID_SETTINGS = {"antenna_grid_max_step": 5.0,
@@ -22,7 +23,7 @@ if __name__ == "__main__":
     # run multiport simulation
     simulate.multiport_sim(array=frac_dipole_array,
                            phantom_name=PHANTOM_NAME,
-                           frequency=298,
+                           use_box= USE_BOX,
                            cuda_kernel=USE_CUDA,
                            **GRID_SETTINGS
                            )

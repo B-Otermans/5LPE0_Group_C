@@ -4,14 +4,17 @@ import s4l_v1.document as document
 import s4l_v1.units as units
 import s4l_v1.model as model
 from s4l_v1 import Unit
-
+from s4l_v1.model import Vec3 as v3
+from s4l_v1 import Rotation, Translation
+import utils
 import numpy as np
+from setup_controls import PHANTOM_SCALE_FACTOR
 
 
 def multiport_sim(array, phantom_name: str = "", frequency: int = 298, simulation_time: int = 500,
                   cuda_kernel: bool = False,
                   antenna_grid_max_step: float = 5.0, antenna_grid_resolution: float = 0.05,
-                  phantom_grid_max_step: float = 5.0, phantom_grid_resolution: float = 10.0) -> None:
+                  phantom_grid_max_step: float = 5.0, phantom_grid_resolution: float = 10.0, use_box: bool = False) -> None:
 
     # Instantiate the simulation
     simulation = emfdtd.MultiportSimulation()
@@ -78,6 +81,33 @@ def multiport_sim(array, phantom_name: str = "", frequency: int = 298, simulatio
         # Add components to voxeler
         simulation.Add(automatic_voxeler_settings, [phantom])
 
+    if use_box:
+        BOX = model.CreateSolidBlock(v3(-520, -170, 160), v3(-310, 30, 410))
+        BOX.Name = 'BOX'
+        translation = Translation(v3(415,70,-315))
+        BOX.ApplyTransform(translation)
+        utils.scale_model(model_name=BOX, scale_factor=PHANTOM_SCALE_FACTOR)
+        # Add scan object MaterialSettings
+        BOX_material_settings = emfdtd.MaterialSettings()
+        BOX_material_settings.ElectricProps.Conductivity = 0, Unit("S/m")
+        BOX_material_settings.ElectricProps.RelativePermittivity = 1
+        BOX_material_settings.Name = "Box"
+		
+        simulation.Add(BOX_material_settings, [BOX])
+
+        # Add scan object ManualGridSettings
+        BOX_grid_settings = simulation.AddManualGridSettings([BOX])
+        BOX_grid_settings.Name = "Box Grid"
+        BOX_grid_settings.MaxStep = np.array([phantom_grid_max_step] * 3), units.MilliMeters
+        BOX_grid_settings.Resolution = np.array([phantom_grid_resolution] * 3), units.MilliMeters
+
+        # Add components to voxeler
+        automatic_voxeler_settings = emfdtd.AutomaticVoxelerSettings()
+        components = [BOX]
+        automatic_voxeler_settings.Name = "Automatic Voxeler Settings 1"
+        simulation.Add(automatic_voxeler_settings, BOX)
+		
+	    
     # Add OverallFieldSensor
     simulation.AddOverallFieldSensorSettings()
 
