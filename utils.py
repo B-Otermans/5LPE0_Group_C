@@ -46,3 +46,17 @@ def align_head_phantom(model_name: str) -> None:
     phantom.ApplyTransform(rot_z)
     transl_z = Translation(Vec3(0, 0, -67))
     phantom.ApplyTransform(transl_z)
+
+
+def align_duke_phantom(model_name: str) -> None:
+    phantom = model.AllEntities()[model_name]
+    phantom.ApplyTransform(phantom.Transform.Inverse())
+    # rot_y = Rotation(1, np.pi)
+    # phantom.ApplyTransform(rot_y)
+    rot_z = Rotation(2, 0.5*np.pi)
+    phantom.ApplyTransform(rot_z)
+
+    transl_z = Translation(Vec3(264, -141, -1710))
+    # transl_z = Translation(Vec3(-100, 0, 0))
+    phantom.ApplyTransform(transl_z)
+
