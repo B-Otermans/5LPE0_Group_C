@@ -19,13 +19,13 @@ DIPOLE_SETTINGS = {"length": 350,
                    "thickness": 0,
                    "matchingLEs": False}
 FRACTIONATED_DIPOLE_CLASS = antennas.FractionatedDipole
-ARRAY_WIDTH = 200  # in millimeters
-ARRAY_HEIGHT = 237  # in millimeters
+ARRAY_WIDTH = 240  # in millimeters
+ARRAY_HEIGHT = 295  # in millimeters
 SPACER_THICKNESS = 10  # in millimeters
 
 # phantom setup parameters
 PHANTOM_NAME = "Duke"
-PHANTOM_SCALE_FACTOR = 1.00  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
+PHANTOM_SCALE_FACTOR = 1.10  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
 
 # if-statement to only perform model setup when this file is run directly
 if __name__ == "__main__":

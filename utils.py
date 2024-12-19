@@ -56,7 +56,7 @@ def align_duke_phantom(model_name: str) -> None:
     rot_z = Rotation(2, 0.5*np.pi)
     phantom.ApplyTransform(rot_z)
 
-    transl_z = Translation(Vec3(264, -141, -1710))
+    transl_z = Translation(Vec3(265, -145, -1720))
     # transl_z = Translation(Vec3(-100, 0, 0))
     phantom.ApplyTransform(transl_z)
 
