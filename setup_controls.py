@@ -27,6 +27,8 @@ SPACER_THICKNESS = 10  # in millimeters
 PHANTOM_NAME = "Head Phantom"
 PHANTOM_SCALE_FACTOR = 1.00  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
 BOX = "BOX"
+print(PHANTOM_SCALE_FACTOR)
+
 
 # if-statement to only perform model setup when this file is run directly
 if __name__ == "__main__":

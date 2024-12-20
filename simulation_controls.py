@@ -1,6 +1,12 @@
 import simulate
 import utils
+import setup_controls
 import imp
+
+#Force update scaling factor
+imp.reload(setup_controls)
+
+
 
 # force module updates
 CUSTOM_MODULES = [simulate, utils]
@@ -11,6 +17,13 @@ for module in CUSTOM_MODULES:
 PHANTOM_NAME = "Head Phantom"
 USE_BOX = True
 USE_CUDA = True
+
+#Grid padding settings set-up
+top_padding = 60
+bottom_padding = 60
+top_padding = top_padding*PHANTOM_SCALE_FACTOR
+bottom_padding = bottom_padding*PHANTOM_SCALE_FACTOR
+
 # grid settings in millimeters
 GRID_SETTINGS = {"antenna_grid_max_step": 5.0,
                  "antenna_grid_resolution": 0.05,
@@ -23,7 +36,9 @@ if __name__ == "__main__":
     # run multiport simulation
     simulate.multiport_sim(array=frac_dipole_array,
                            phantom_name=PHANTOM_NAME,
-                           use_box= USE_BOX,
+                           use_box=USE_BOX,
                            cuda_kernel=USE_CUDA,
-                           **GRID_SETTINGS
-                           )
+                           top_padding=top_padding,
+                           bottom_padding=bottom_padding,
+                           PHANTOM_SCALE_FACTOR=setup_controls.PHANTOM_SCALE_FACTOR,
+                           **GRID_SETTINGS)
