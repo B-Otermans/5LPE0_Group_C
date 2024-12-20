@@ -59,4 +59,17 @@ def align_duke_phantom(model_name: str) -> None:
     transl_z = Translation(Vec3(265, -145, -1720))
     # transl_z = Translation(Vec3(-100, 0, 0))
     phantom.ApplyTransform(transl_z)
+	
+def translate_model(entity_name: str, translation_vector: tuple) -> None:
+    """
+    Translates a given model entity by the specified translation vector.
 
+    :param entity_name: Name of the model entity to translate.
+    :param translation_vector: Tuple (x, y, z) specifying the translation in millimeters.
+    """
+    # Fetch the entity from the model
+    entity = model.AllEntities()[entity_name]
+    # Create a translation object
+    translation = Translation(Vec3(*translation_vector))
+    # Apply the translation to the entity
+    entity.ApplyTransform(translation)
