@@ -2,13 +2,12 @@ import antennas
 import utils
 import imp
 
-
 # force module update
 CUSTOM_MODULES = [antennas, utils]
 for module in CUSTOM_MODULES:
     imp.reload(module)
 
-CLEAR_LIST = ["Fractionated Dipole Array", "Spacer Group","BOX"]
+CLEAR_LIST = ["Fractionated Dipole Array", "Spacer Group", "BOX"]
 
 # array setup parameters
 ARRAY_NAME = "Fractionated Dipole Array"
@@ -25,10 +24,11 @@ SPACER_THICKNESS = 10  # in millimeters
 
 # phantom setup parameters
 PHANTOM_NAME = "Head Phantom"
-PHANTOM_SCALE_FACTOR = 1.00  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
-BOX = "BOX"
-print(PHANTOM_SCALE_FACTOR)
+PHANTOM_SCALE_FACTOR = 1.0  # e.g., 1.05 for 5% increase, or 0.95 for 5% decrease
 
+# Box dimensions
+BOX_DIMENSIONS = (170, 200, 245)  # Replace with desired X, Y, Z values
+print(PHANTOM_SCALE_FACTOR)
 
 # if-statement to only perform model setup when this file is run directly
 if __name__ == "__main__":

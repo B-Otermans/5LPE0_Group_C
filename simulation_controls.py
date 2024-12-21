@@ -3,10 +3,8 @@ import utils
 import setup_controls
 import imp
 
-#Force update scaling factor
+# Force update scaling factor
 imp.reload(setup_controls)
-
-
 
 # force module updates
 CUSTOM_MODULES = [simulate, utils]
@@ -18,11 +16,11 @@ PHANTOM_NAME = "Head Phantom"
 USE_BOX = True
 USE_CUDA = True
 
-#Grid padding settings set-up
+# Grid padding settings set-up
 top_padding = 60
 bottom_padding = 60
-top_padding = top_padding*PHANTOM_SCALE_FACTOR
-bottom_padding = bottom_padding*PHANTOM_SCALE_FACTOR
+top_padding = top_padding * setup_controls.PHANTOM_SCALE_FACTOR
+bottom_padding = bottom_padding * setup_controls.PHANTOM_SCALE_FACTOR
 
 # grid settings in millimeters
 GRID_SETTINGS = {"antenna_grid_max_step": 5.0,
@@ -41,4 +39,5 @@ if __name__ == "__main__":
                            top_padding=top_padding,
                            bottom_padding=bottom_padding,
                            PHANTOM_SCALE_FACTOR=setup_controls.PHANTOM_SCALE_FACTOR,
+                           BOX_DIMENSIONS=setup_controls.BOX_DIMENSIONS,
                            **GRID_SETTINGS)
