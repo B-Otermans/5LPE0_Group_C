@@ -24,7 +24,7 @@ ARRAY_HEIGHT = 285  # in millimeters
 SPACER_THICKNESS = 10  # in millimeters
 
 # phantom setup parameters
-PHANTOM_NAME = ""
+PHANTOM_NAME = "Duke"
 PHANTOM_SCALE_FACTOR = 1.05  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
 BOX_DIMENSIONS = (195, 260, 245)  # Replace with desired X, Y, Z values
 # if-statement to only perform model setup when this file is run directly
