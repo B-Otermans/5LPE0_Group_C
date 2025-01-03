@@ -8,7 +8,7 @@ for module in CUSTOM_MODULES:
     imp.reload(module)
 
 # simulation parameters
-PHANTOM_NAME = "Duke" #Change to name of phantom for simulation
+PHANTOM_NAME = "" #Change to name of phantom for simulation
 USE_CUDA = True
 # grid settings in millimeters
 GRID_SETTINGS = {"antenna_grid_max_step": 5.0,
