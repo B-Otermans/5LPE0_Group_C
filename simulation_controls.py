@@ -19,8 +19,8 @@ USE_CUDA = True
 # Grid padding settings set-up
 top_padding = 200
 bottom_padding = 200
-top_padding = top_padding * setup_controls.PHANTOM_SCALE_FACTOR
-bottom_padding = bottom_padding * setup_controls.PHANTOM_SCALE_FACTOR
+top_padding = top_padding * setup_controls_duke.PHANTOM_SCALE_FACTOR
+bottom_padding = bottom_padding * setup_controls_duke.PHANTOM_SCALE_FACTOR
 
 # grid settings in millimeters
 GRID_SETTINGS = {"antenna_grid_max_step": 0.5,
