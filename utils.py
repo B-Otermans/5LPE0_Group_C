@@ -46,3 +46,30 @@ def align_head_phantom(model_name: str) -> None:
     phantom.ApplyTransform(rot_z)
     transl_z = Translation(Vec3(0, 0, -67))
     phantom.ApplyTransform(transl_z)
+
+
+def align_duke_phantom(model_name: str) -> None:
+    phantom = model.AllEntities()[model_name]
+    phantom.ApplyTransform(phantom.Transform.Inverse())
+    # rot_y = Rotation(1, np.pi)
+    # phantom.ApplyTransform(rot_y)
+    rot_z = Rotation(2, 0.5*np.pi)
+    phantom.ApplyTransform(rot_z)
+
+    transl_z = Translation(Vec3(265, -145, -1720))
+    # transl_z = Translation(Vec3(-100, 0, 0))
+    phantom.ApplyTransform(transl_z)
+	
+def translate_model(entity_name: str, translation_vector: tuple) -> None:
+    """
+    Translates a given model entity by the specified translation vector.
+
+    :param entity_name: Name of the model entity to translate.
+    :param translation_vector: Tuple (x, y, z) specifying the translation in millimeters.
+    """
+    # Fetch the entity from the model
+    entity = model.AllEntities()[entity_name]
+    # Create a translation object
+    translation = Translation(Vec3(*translation_vector))
+    # Apply the translation to the entity
+    entity.ApplyTransform(translation)
