@@ -11,8 +11,8 @@ import utils
 import numpy as np
 import os
 
-def multiport_sim(array, phantom_name: str = "", frequency: int = 298, simulation_time: int = 500,
-                  cuda_kernel: bool = False,
+def multiport_sim(array, top_padding, bottom_padding, PHANTOM_SCALE_FACTOR, BOX_DIMENSIONS, phantom_name: str = "",
+                  frequency: int = 298, simulation_time: int = 500, cuda_kernel: bool = False,
                   antenna_grid_max_step: float = 5.0, antenna_grid_resolution: float = 0.05,
                   phantom_grid_max_step: float = 5.0, phantom_grid_resolution: float = 10.0, use_box: bool = False) -> None:
     # Instantiate the simulation
@@ -36,11 +36,12 @@ def multiport_sim(array, phantom_name: str = "", frequency: int = 298, simulatio
     # Editing AutomaticVoxelerSettings "Automatic Voxeler Settings
     automatic_voxeler_settings = [x for x in simulation.AllSettings if isinstance(x, emfdtd.AutomaticVoxelerSettings)
                                   and x.Name == "Automatic Voxeler Settings"][0]
+    
     #Changing padding global grid
     global_grid_settings = simulation.GlobalGridSettings
     global_grid_settings.PaddingMode = global_grid_settings.PaddingMode.enum.Manual
-    global_grid_settings.BottomPadding = numpy.array([bottom_padding, bottom_padding, bottom_padding]), units.MilliMeters
-    global_grid_settings.TopPadding = numpy.array([top_padding, top_padding, top_padding]), units.MilliMeters
+    global_grid_settings.BottomPadding = np.array([bottom_padding, bottom_padding, bottom_padding]), units.MilliMeters
+    global_grid_settings.TopPadding = np.array([top_padding, top_padding, top_padding]), units.MilliMeters
 
     for antenna in array.antenna_list:
         # Add conductor MaterialSettings
