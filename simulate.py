@@ -4,12 +4,13 @@ import s4l_v1.document as document
 import s4l_v1.units as units
 import s4l_v1.model as model
 from s4l_v1 import Unit
-from s4l_v1 import ArchivingOptions
 from s4l_v1.model import Vec3 as v3
 from s4l_v1 import Rotation, Translation
 import utils
+import numpy
 import numpy as np
-import os
+
+
 
 def multiport_sim(array, top_padding, bottom_padding, PHANTOM_SCALE_FACTOR, BOX_DIMENSIONS, phantom_name: str = "",
                   frequency: int = 298, simulation_time: int = 500, cuda_kernel: bool = False,
@@ -36,12 +37,11 @@ def multiport_sim(array, top_padding, bottom_padding, PHANTOM_SCALE_FACTOR, BOX_
     # Editing AutomaticVoxelerSettings "Automatic Voxeler Settings
     automatic_voxeler_settings = [x for x in simulation.AllSettings if isinstance(x, emfdtd.AutomaticVoxelerSettings)
                                   and x.Name == "Automatic Voxeler Settings"][0]
-    
     #Changing padding global grid
     global_grid_settings = simulation.GlobalGridSettings
     global_grid_settings.PaddingMode = global_grid_settings.PaddingMode.enum.Manual
-    global_grid_settings.BottomPadding = np.array([bottom_padding, bottom_padding, bottom_padding]), units.MilliMeters
-    global_grid_settings.TopPadding = np.array([top_padding, top_padding, top_padding]), units.MilliMeters
+    global_grid_settings.BottomPadding = numpy.array([bottom_padding, bottom_padding, bottom_padding]), units.MilliMeters
+    global_grid_settings.TopPadding = numpy.array([top_padding, top_padding, top_padding]), units.MilliMeters
 
     for antenna in array.antenna_list:
         # Add conductor MaterialSettings
