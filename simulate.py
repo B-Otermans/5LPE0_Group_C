@@ -9,7 +9,7 @@ from s4l_v1.model import Vec3 as v3
 from s4l_v1 import Rotation, Translation
 import utils
 import numpy as np
-
+import os
 
 def multiport_sim(array, phantom_name: str = "", frequency: int = 298, simulation_time: int = 500,
                   cuda_kernel: bool = False,
