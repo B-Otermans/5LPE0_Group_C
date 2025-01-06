@@ -168,17 +168,31 @@ def extract_singleports(simulation_name: str, relative_path: str):
     simulation = document.AllSimulations[simulation_name]
     em_multiport_simulation_extractor = simulation.Results()
     sensors = [s for s in em_multiport_simulation_extractor]
+
     for i, s in enumerate(sensors):
         em_sensor = s["Overall Field"]
         document.AllAlgorithms.Add(em_sensor)
-        inputs = [em_sensor.Outputs["B1(x,y,z,f0)"]]
-        viewer = analysis.viewers.SliceFieldViewer(inputs=inputs)
-        document.AllAlgorithms.Add(viewer)
+        inputs = [em_sensor.Outputs["B1(x,y,z,f0)"]]  
+        mask = analysis.core.FieldMaskingFilter(inputs=inputs)
+        mask.SetAllMaterials(False)
+        mask.SetEntities(get_duke_materials())
+        mask.UpdateAttributes()
+        inputs = [mask.Outputs["B1(x,y,z,f0)"]]   
         exporter = analysis.exporters.MatlabExporter(inputs=inputs)
+        viewer = analysis.viewers.SliceFieldViewer(inputs=inputs)
         exporter.FileName = newpath + "\\sensor_" + str(i) + ".mat"
         exporter.UpdateAttributes()
-        exporter.Update()
         document.AllAlgorithms.Add(exporter)
+        exporter.Update(overwrite=True)
+        exporter.Update(overwrite=True)
+        exporter.Update(overwrite=True)
+        document.AllAlgorithms.Add(viewer)
+        document.AllAlgorithms.Add(mask)
 
+
+def get_duke_materials():
+    entities = model.AllEntities()
+    materials = [m for m in entities if m.ReadOnly == True]
+    return materials
 
 
