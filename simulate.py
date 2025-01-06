@@ -4,8 +4,10 @@ import s4l_v1.document as document
 import s4l_v1.units as units
 import s4l_v1.model as model
 from s4l_v1 import Unit
+from s4l_v1 import ArchivingOptions
 
 import numpy as np
+import os
 
 
 def multiport_sim(array, phantom_name: str = "", frequency: int = 298, simulation_time: int = 500,
@@ -114,3 +116,32 @@ def extract_multiport(simulation_name: str, normalized_power: int = 0):
     em_multi_port_simulation_combiner.Update()
 
     document.AllAlgorithms.Add(em_multi_port_simulation_combiner)
+
+def extract_singleports(simulation_name: str, relative_path: str):
+    #Prepare new path for exports
+    path = document.FilePath
+    path = path.split('\\')[:-1]
+    path = "\\".join(path)
+    newpath = path + '\\' + relative_path
+    print("Export path: " + newpath)
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+
+    #Extract sensors and export in relative path
+    simulation = document.AllSimulations[simulation_name]
+    em_multiport_simulation_extractor = simulation.Results()
+    sensors = [s for s in em_multiport_simulation_extractor]
+    for i, s in enumerate(sensors):
+        em_sensor = s["Overall Field"]
+        document.AllAlgorithms.Add(em_sensor)
+        inputs = [em_sensor.Outputs["B1(x,y,z,f0)"]]
+        viewer = analysis.viewers.SliceFieldViewer(inputs=inputs)
+        document.AllAlgorithms.Add(viewer)
+        exporter = analysis.exporters.MatlabExporter(inputs=inputs)
+        exporter.FileName = newpath + "\\sensor_" + str(i) + ".mat"
+        exporter.UpdateAttributes()
+        exporter.Update()
+        document.AllAlgorithms.Add(exporter)
+
+
+
