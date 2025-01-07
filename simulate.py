@@ -12,7 +12,7 @@ import numpy as np
 import os
 
 
-def multiport_sim(array, top_padding, bottom_padding, phantom_scale_factor, box_dimensions, phantom_name: str = "",
+def multiport_sim(array, top_padding, bottom_padding, phantom_name: str = "",
                   frequency: int = 298, simulation_time: int = 500, cuda_kernel: bool = False,
                   antenna_grid_max_step: float = 5.0, antenna_grid_resolution: float = 0.05,
                   phantom_grid_max_step: float = 5.0, phantom_grid_resolution: float = 10.0,
