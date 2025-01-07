@@ -161,7 +161,7 @@ def extract_singleports(simulation_name: str, relative_path: str):
     sensors = [s for s in em_multiport_simulation_extractor]
 
     for i, s in enumerate(sensors):
-        em_sensor = s["Overall Field"]
+        em_sensor = s["Bounding Box"]
         document.AllAlgorithms.Add(em_sensor)
         inputs = [em_sensor.Outputs["B1(x,y,z,f0)"]]
         mask = analysis.core.FieldMaskingFilter(inputs=inputs)

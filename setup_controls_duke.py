@@ -25,7 +25,7 @@ SPACER_THICKNESS = 10  # in millimeters
 
 # phantom setup parameters
 PHANTOM_NAME = "Duke"
-PHANTOM_SCALE_FACTOR = 1.0  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
+PHANTOM_SCALE_FACTOR = 0.95  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
 
 # if-statement to only perform model setup when this file is run directly
 if __name__ == "__main__":
