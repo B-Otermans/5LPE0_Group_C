@@ -5,21 +5,18 @@ import s4l_v1.units as units
 import s4l_v1.model as model
 from s4l_v1 import Unit
 from s4l_v1.model import Vec3 as v3
-from s4l_v1 import Rotation, Translation
+from s4l_v1 import Translation
+
 import utils
-import numpy
 import numpy as np
+import os
 
 
-
-def multiport_sim(array, top_padding, bottom_padding, PHANTOM_SCALE_FACTOR, BOX_DIMENSIONS, phantom_name: str = "",
+def multiport_sim(array, top_padding, bottom_padding, phantom_scale_factor, box_dimensions, phantom_name: str = "",
                   frequency: int = 298, simulation_time: int = 500, cuda_kernel: bool = False,
                   antenna_grid_max_step: float = 5.0, antenna_grid_resolution: float = 0.05,
-                  phantom_grid_max_step: float = 5.0, phantom_grid_resolution: float = 10.0, use_box: bool = False) -> None:
-    # Instantiate the simulation
-
-
-
+                  phantom_grid_max_step: float = 5.0, phantom_grid_resolution: float = 10.0,
+                  bounding_box: str = "") -> None:
     # Instantiate the simulation
     simulation = emfdtd.MultiportSimulation()
     simulation.Name = f"{array.name} simulation at {frequency}MHz"
@@ -37,12 +34,14 @@ def multiport_sim(array, top_padding, bottom_padding, PHANTOM_SCALE_FACTOR, BOX_
     # Editing AutomaticVoxelerSettings "Automatic Voxeler Settings
     automatic_voxeler_settings = [x for x in simulation.AllSettings if isinstance(x, emfdtd.AutomaticVoxelerSettings)
                                   and x.Name == "Automatic Voxeler Settings"][0]
-    #Changing padding global grid
+
+    # Changing padding global grid
     global_grid_settings = simulation.GlobalGridSettings
     global_grid_settings.PaddingMode = global_grid_settings.PaddingMode.enum.Manual
-    global_grid_settings.BottomPadding = numpy.array([bottom_padding, bottom_padding, bottom_padding]), units.MilliMeters
-    global_grid_settings.TopPadding = numpy.array([top_padding, top_padding, top_padding]), units.MilliMeters
+    global_grid_settings.BottomPadding = np.array([bottom_padding, bottom_padding, bottom_padding]), units.MilliMeters
+    global_grid_settings.TopPadding = np.array([top_padding, top_padding, top_padding]), units.MilliMeters
 
+    # Add antennas to simulation
     for antenna in array.antenna_list:
         # Add conductor MaterialSettings
         conductor_material_settings = emfdtd.MaterialSettings()
@@ -90,37 +89,27 @@ def multiport_sim(array, top_padding, bottom_padding, PHANTOM_SCALE_FACTOR, BOX_
         # Add components to voxeler
         simulation.Add(automatic_voxeler_settings, [phantom])
 
-    if use_box:
-        start_point = v3(0, 0, 0)  # Adjust starting point if needed
-        end_point = v3(start_point[0] + BOX_DIMENSIONS[0], 
-					start_point[1] + BOX_DIMENSIONS[1], 
-					start_point[2] + BOX_DIMENSIONS[2])
+    if bounding_box:
+        # BOX_material_settings = emfdtd.MaterialSettings()
+        # BOX_material_settings.ElectricProps.Conductivity = 0, Unit("S/m")
+        # BOX_material_settings.MassDensity = 1.205
+        # BOX_material_settings.ElectricProps.RelativePermittivity = 1
+        # BOX_material_settings.Name = "Box"
+        # simulation.Add(BOX_material_settings, [BOX])
+        box = model.AllEntities()[bounding_box]
 
-        BOX = model.CreateWireBlock(start_point, end_point)
-        BOX.Name = 'BOX'
-        translation = Translation(v3(-97.5,-125,-150))
-        BOX.ApplyTransform(translation)
-        utils.scale_model(model_name='BOX', scale_factor=PHANTOM_SCALE_FACTOR)
-
-        #BOX_material_settings = emfdtd.MaterialSettings()
-        #BOX_material_settings.ElectricProps.Conductivity = 0, Unit("S/m")
-        #BOX_material_settings.MassDensity = 1.205
-        #BOX_material_settings.ElectricProps.RelativePermittivity = 1
-        #BOX_material_settings.Name = "Box"
-        #simulation.Add(BOX_material_settings, [BOX])
-
-        BOX_grid_settings = simulation.AddManualGridSettings([BOX])
+        BOX_grid_settings = simulation.AddManualGridSettings([box])
         BOX_grid_settings.Name = "Box Grid"
         BOX_grid_settings.MaxStep = np.array([phantom_grid_max_step] * 3), units.MilliMeters
         BOX_grid_settings.Resolution = np.array([phantom_grid_resolution] * 3), units.MilliMeters
 
         automatic_voxeler_settings = emfdtd.AutomaticVoxelerSettings()
-        simulation.Add(automatic_voxeler_settings, [BOX])
+        simulation.Add(automatic_voxeler_settings, [box])
 
+        # Add OverallFieldSensor
+        OverallFieldSensorSettings = simulation.AddOverallFieldSensorSettings()
+        simulation.Add(OverallFieldSensorSettings, [box])
 
-    # Add OverallFieldSensor
-    OverallFieldSensorSettings = simulation.AddOverallFieldSensorSettings()
-    simulation.Add(OverallFieldSensorSettings,[BOX])
     # Editing SolverSettings "Solver
     if cuda_kernel:
         solver_settings = simulation.SolverSettings
@@ -155,8 +144,9 @@ def extract_multiport(simulation_name: str, normalized_power: int = 0):
 
     document.AllAlgorithms.Add(em_multi_port_simulation_combiner)
 
+
 def extract_singleports(simulation_name: str, relative_path: str):
-    #Prepare new path for exports
+    # Prepare new path for exports
     path = document.FilePath
     path = path.split('\\')[:-1]
     path = "\\".join(path)
@@ -165,7 +155,7 @@ def extract_singleports(simulation_name: str, relative_path: str):
     if not os.path.exists(newpath):
         os.makedirs(newpath)
 
-    #Extract sensors and export in relative path
+    # Extract sensors and export in relative path
     simulation = document.AllSimulations[simulation_name]
     em_multiport_simulation_extractor = simulation.Results()
     sensors = [s for s in em_multiport_simulation_extractor]
@@ -173,12 +163,12 @@ def extract_singleports(simulation_name: str, relative_path: str):
     for i, s in enumerate(sensors):
         em_sensor = s["Overall Field"]
         document.AllAlgorithms.Add(em_sensor)
-        inputs = [em_sensor.Outputs["B1(x,y,z,f0)"]]  
+        inputs = [em_sensor.Outputs["B1(x,y,z,f0)"]]
         mask = analysis.core.FieldMaskingFilter(inputs=inputs)
         mask.SetAllMaterials(False)
         mask.SetEntities(get_duke_materials())
         mask.UpdateAttributes()
-        inputs = [mask.Outputs["B1(x,y,z,f0)"]]   
+        inputs = [mask.Outputs["B1(x,y,z,f0)"]]
         exporter = analysis.exporters.MatlabExporter(inputs=inputs)
         viewer = analysis.viewers.SliceFieldViewer(inputs=inputs)
         exporter.FileName = newpath + "\\sensor_" + str(i) + ".mat"
@@ -193,7 +183,5 @@ def extract_singleports(simulation_name: str, relative_path: str):
 
 def get_duke_materials():
     entities = model.AllEntities()
-    materials = [m for m in entities if m.ReadOnly == True]
+    materials = [m for m in entities if m.ReadOnly is True]
     return materials
-
-
