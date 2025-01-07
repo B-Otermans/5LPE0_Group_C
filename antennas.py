@@ -71,8 +71,12 @@ class ElipseArray:
         self.name = name
         self.antenna_group = model.EntityGroup()
         self.antenna_group.Name = self.name
+        self.antenna_parameters = antenna_parameters
         self.antenna_list = []
         self.spacer_list = []
+        self.width = array_width
+        self.height = array_height
+        self.length = self.antenna_parameters["length"]
 
         # antenna angles start at 0.5pi such that the first antenna is above the face
         self.angles = np.linspace(0.5*np.pi, 2.5*np.pi, n_antennas, endpoint=False)
@@ -94,12 +98,14 @@ class ElipseArray:
 
         print(f"Created: Elipse array with {n_antennas} '{antenna_class.__name__}' elements")
 
-    def add_spacers(self, length: int, width: int, height: int) -> None:
+    def add_spacers(self, height: int) -> None:
         self.spacer_group = model.EntityGroup()
         self.spacer_group.Name = "Spacer Group"
 
         self.spacer_angles = np.linspace(0, 2*np.pi, len(self.angles), endpoint=False)
 
+        length = self.antenna_parameters["length"]
+        width = self.antenna_parameters["width"] + 30
         for i, coord in enumerate(self.coords_2D):
             spacer = Spacer(length, width, height)
             spacer.set_name(f"{spacer.name} {i+1}")
@@ -115,6 +121,11 @@ class ElipseArray:
             spacer.angle = self.spacer_angles[i]
 
         print(f' - Added spacers to "{self.name}"')
+
+    def add_bounding_box(self):
+        self.box = model.CreateWireBlock(Vec3(-self.width/2, -self.height/2, -self.length/2),
+                                         Vec3(self.width/2, self.height/2, self.length/2))
+        self.box.Name = "Bounding Box"
 
     def set_name(self, new_name) -> None:
         self.name = new_name
