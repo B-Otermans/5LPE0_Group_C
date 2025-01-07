@@ -80,7 +80,16 @@ class ElipseArray:
 
         # antenna angles start at 0.5pi such that the first antenna is above the face
         self.angles = np.linspace(0.5*np.pi, 2.5*np.pi, n_antennas, endpoint=False)
-        self.coords_2D = np.vstack([np.array((array_width/2*np.cos(t), array_height/2*np.sin(t))) for t in self.angles])
+        self.coords_2D = np.vstack(
+            [np.array((array_width/2*np.cos(t), array_height/2*np.sin(t))) for t in self.angles]
+            )
+
+        # r = self.width / self.height
+        # angles = np.linspace(0, 2*np.pi, n_antennas, endpoint=False)
+        # self.alt_angles = [np.arctan(r * np.tan(t)) + np.pi*(1 + np.floor(t/np.pi - 0.5)) for t in angles]
+        # self.alt_coords_2D = np.vstack(
+        #     [np.array((array_width/2*np.cos(t), array_height/2*np.sin(t))) for t in self.alt_angles]
+        #     )
 
         for i, coord in enumerate(self.coords_2D):
             antenna = antenna_class(**antenna_parameters)
@@ -124,7 +133,8 @@ class ElipseArray:
 
     def add_bounding_box(self):
         self.box = model.CreateWireBlock(Vec3(-self.width/2, -self.height/2, -self.length/2),
-                                         Vec3(self.width/2, self.height/2, self.length/2))
+                                         Vec3(self.width/2, self.height/2, self.length/2)
+                                         )
         self.box.Name = "Bounding Box"
 
     def set_name(self, new_name) -> None:
