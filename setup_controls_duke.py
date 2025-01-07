@@ -8,7 +8,7 @@ CUSTOM_MODULES = [antennas, utils]
 for module in CUSTOM_MODULES:
     imp.reload(module)
 
-CLEAR_LIST = ["Fractionated Dipole Array", "Spacer Group"]
+CLEAR_LIST = ["Fractionated Dipole Array", "Spacer Group", "Bounding Box"]
 
 # array setup parameters
 ARRAY_NAME = "Fractionated Dipole Array"
@@ -19,13 +19,13 @@ DIPOLE_SETTINGS = {"length": 350,
                    "thickness": 0,
                    "matchingLEs": False}
 FRACTIONATED_DIPOLE_CLASS = antennas.FractionatedDipole
-ARRAY_WIDTH = 240  # in millimeters
-ARRAY_HEIGHT = 295  # in millimeters
+ARRAY_WIDTH = 170  # in millimeters
+ARRAY_HEIGHT = 260  # in millimeters
 SPACER_THICKNESS = 10  # in millimeters
 
 # phantom setup parameters
 PHANTOM_NAME = "Duke"
-PHANTOM_SCALE_FACTOR = 0.95  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
+PHANTOM_SCALE_FACTOR = 1.0  # e.g. 1.05 for 5% increase, or 0.95 for 5% decrease
 
 # if-statement to only perform model setup when this file is run directly
 if __name__ == "__main__":
@@ -38,8 +38,9 @@ if __name__ == "__main__":
                                              antenna_class=FRACTIONATED_DIPOLE_CLASS,
                                              array_width=ARRAY_WIDTH,
                                              array_height=ARRAY_HEIGHT)
-    frac_dipole_array.add_spacers(DIPOLE_SETTINGS["length"], DIPOLE_SETTINGS["width"] + 30, SPACER_THICKNESS)
+    frac_dipole_array.add_spacers(SPACER_THICKNESS)
+    frac_dipole_array.add_bounding_box()
     # align phantom
-    utils.align_duke_phantom(model_name=PHANTOM_NAME)
+    utils.align_duke()
     # scale phantom
     utils.scale_model(model_name=PHANTOM_NAME, scale_factor=PHANTOM_SCALE_FACTOR)
