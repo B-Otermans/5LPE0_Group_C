@@ -3,18 +3,16 @@ import utils
 import setup_controls_duke
 import imp
 
-# Force update scaling factor
-imp.reload(setup_controls_duke)
 
 # force module updates
-CUSTOM_MODULES = [simulate, utils]
+CUSTOM_MODULES = [simulate, utils, setup_controls_duke]
 for module in CUSTOM_MODULES:
     imp.reload(module)
 
 # simulation parameters
-PHANTOM_NAME = ""
-USE_BOX = True
+PHANTOM_NAME = ""  # Duke is not incorperated in sim function, empty string is the same as omitting phantom name
 USE_CUDA = True
+BOUNDING_BOX = "Bounding Box"
 
 # Grid padding settings set-up
 top_padding = 200
@@ -29,15 +27,17 @@ GRID_SETTINGS = {"antenna_grid_max_step": 0.5,
                  "phantom_grid_resolution": 10.0
                  }
 
+BOX_DIMENSIONS = (170, 200, 245)
+
 # if-statement to only perform simulation when this file is run directly
 if __name__ == "__main__":
     # run multiport simulation
     simulate.multiport_sim(array=frac_dipole_array,
                            phantom_name=PHANTOM_NAME,
-                           use_box=USE_BOX,
+                           bounding_box=BOUNDING_BOX,
                            cuda_kernel=USE_CUDA,
                            top_padding=top_padding,
                            bottom_padding=bottom_padding,
-                           PHANTOM_SCALE_FACTOR=setup_controls_duke.PHANTOM_SCALE_FACTOR,
-                           BOX_DIMENSIONS=setup_controls_duke.BOX_DIMENSIONS,
+                           phantom_scale_factor=setup_controls_duke.PHANTOM_SCALE_FACTOR,
+                           box_dimensions=BOX_DIMENSIONS,
                            **GRID_SETTINGS)
