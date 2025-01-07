@@ -48,18 +48,18 @@ def align_head_phantom(model_name: str) -> None:
     phantom.ApplyTransform(transl_z)
 
 
-def align_duke_phantom(model_name: str) -> None:
-    phantom = model.AllEntities()[model_name]
-    phantom.ApplyTransform(phantom.Transform.Inverse())
-    # rot_y = Rotation(1, np.pi)
-    # phantom.ApplyTransform(rot_y)
-    rot_z = Rotation(2, 0.5*np.pi)
-    phantom.ApplyTransform(rot_z)
+def align_duke() -> None:
+    duke = model.AllEntities()["Duke"]
+    mesh = model.AllEntities()["Bone Mesh System"]
+    duke.ApplyTransform(mesh.Transform.Inverse())
 
-    transl_z = Translation(Vec3(265, -145, -1720))
-    # transl_z = Translation(Vec3(-100, 0, 0))
-    phantom.ApplyTransform(transl_z)
-	
+    rot_z = Rotation(2, 0.5*np.pi)
+    translation = Translation(Vec3(265, -145, -1720))
+
+    duke.ApplyTransform(rot_z)
+    duke.ApplyTransform(translation)
+
+
 def translate_model(entity_name: str, translation_vector: tuple) -> None:
     """
     Translates a given model entity by the specified translation vector.
