@@ -21,13 +21,11 @@ top_padding = top_padding * setup_controls_duke.PHANTOM_SCALE_FACTOR
 bottom_padding = bottom_padding * setup_controls_duke.PHANTOM_SCALE_FACTOR
 
 # grid settings in millimeters
-GRID_SETTINGS = {"antenna_grid_max_step": 0.5,
+GRID_SETTINGS = {"antenna_grid_max_step": 1.0,
                  "antenna_grid_resolution": 0.05,
-                 "phantom_grid_max_step": 1.0,
+                 "phantom_grid_max_step": 3.0,
                  "phantom_grid_resolution": 10.0
                  }
-
-BOX_DIMENSIONS = (170, 200, 245)
 
 # if-statement to only perform simulation when this file is run directly
 if __name__ == "__main__":
@@ -38,6 +36,4 @@ if __name__ == "__main__":
                            cuda_kernel=USE_CUDA,
                            top_padding=top_padding,
                            bottom_padding=bottom_padding,
-                           phantom_scale_factor=setup_controls_duke.PHANTOM_SCALE_FACTOR,
-                           box_dimensions=BOX_DIMENSIONS,
                            **GRID_SETTINGS)
