@@ -7,12 +7,14 @@ z_slices = 215:235;  % slices for which homogeneity is scored
 % alle fases 0 graden:
 % start_phases = [0 0 0 0 0 0 0 0];  % cov -> 0.2512
 
-% fases die de hoek van de antennes in de array zijn:
-start_phases = [90 135 180 -135 -90 -45 0 45];  % cov -> 0.2374
+% fases die de cirkel-hoek van de antennes in de array zijn:
+% start_phases = [90 135 180 -135 -90 -45 0 45];  % cov -> 0.2374
+
+% fases die de ellips-hoek van de antennes in de array zijn:
+% start_phases = [-90 -129 -180 129 90 51 0 -51];  % cov -> 0.2107
 
 % experimenteel succesvolle fases:
 % start_phases = [-85 -124 -185 134 95 56 -5 -46];  % cov -> 0.2107
-% start_phases = [-90 -129 -180 129 90 51 0 -51];  % cov -> 0.2107
 % start_phases = [-83 -126 -187 136 97 54 -7 -48];  % cov -> 0.2107
 
 phasesOptimiser = @(phases) phasesScorer(phases, b1_plus_fields);
