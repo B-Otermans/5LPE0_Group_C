@@ -1,24 +1,29 @@
 %% function calls
-files = ["FD1_B1_masked.mat" "FD2_B1_masked.mat" "FD3_B1_masked.mat" "FD4_B1_masked.mat" ...
-         "FD5_B1_masked.mat" "FD6_B1_masked.mat" "FD7_B1_masked.mat" "FD8_B1_masked.mat"];
-z_slices = 50:94;
-setGlobalFields(initialiseFieldsMatrix(files, z_slices));  % comment this out for faster runtime if files
-                                                           % are loaded into workspace
+files = ["sensor_0.mat" "sensor_1.mat" "sensor_2.mat" "sensor_3.mat" ...
+         "sensor_4.mat" "sensor_5.mat" "sensor_6.mat" "sensor_7.mat"];
+z_slices = 215:235;  % slices for which homogeneity is scored
+% b1_plus_fields = initialiseFieldsMatrix(files, z_slices);  % comment this out for faster runtime if files are loaded into workspace
 
-% start_phases = [-85 -124 -185 134 95 56 -5 -46];  % cov -> 0.3913
-% start_phases = [-90 -129 -180 129 90 51 0 -51];  % cov -> 0.3913
-start_phases = [-83 -126 -187 136 97 54 -7 -48];  % cov -> 0.3891
+% alle fases 0 graden:
+% start_phases = [0 0 0 0 0 0 0 0];  % cov -> 0.2512
 
-phasesOptimiser = @(phases) phasesScorer(phases);
+% fases die de hoek van de antennes in de array zijn:
+start_phases = [90 135 180 -135 -90 -45 0 45];  % cov -> 0.2374
+
+% experimenteel succesvolle fases:
+% start_phases = [-85 -124 -185 134 95 56 -5 -46];  % cov -> 0.2107
+% start_phases = [-90 -129 -180 129 90 51 0 -51];  % cov -> 0.2107
+% start_phases = [-83 -126 -187 136 97 54 -7 -48];  % cov -> 0.2107
+
+phasesOptimiser = @(phases) phasesScorer(phases, b1_plus_fields);
 [optimised_phases, cofv] = fminunc(phasesOptimiser, start_phases);
 disp("Best phases: "); disp(optimised_phases);
 disp("Score (cov): "); disp(cofv);
 
 
 %% optimiser functions
-function [score] = phasesScorer(phases)
-    b1_fields = getGlobalFields;
-    phased_fields = phaseFields(b1_fields, phases);    
+function [score] = phasesScorer(phases, fields)
+    phased_fields = phaseFields(fields, phases);    
     total_field_abs = abs(sum(phased_fields, 4));
     score = cov(total_field_abs);
 end
@@ -64,11 +69,9 @@ end
 
 
 function B1_plus_fields = initialiseFieldsMatrix(files, z_slices)
-    B1_plus_fields = zeros(130, 70, 120, length(files));
-    for i = 1:length(files)
-        B1_plus_fields(:, :, :, i) = loadB1Plus(files(i));
-    end
-    B1_plus_fields = B1_plus_fields(:,:, z_slices, :);
+    B1_plus_fields = arrayfun(@(file) loadB1Plus(file), files, "UniformOutput", false);
+    B1_plus_fields = cat(4, B1_plus_fields{:});
+    B1_plus_fields = double(B1_plus_fields(:,:, z_slices, :));
 end
 
 
@@ -87,14 +90,9 @@ function B1_plus = loadB1Plus(file_name)
 end
 
 
-%% helper functions
-function setGlobalFields(val)
-    global B1_plus_fields
-    B1_plus_fields = val;
-end
-
-
-function r = getGlobalFields
-    global B1_plus_fields
-    r = B1_plus_fields;
+%% plot functions
+function showField(fields, phases, z_index)
+    phased_fields = phaseFields(fields, phases);    
+    total_field_abs = abs(sum(phased_fields(:,:, z_index, :), 4));
+    imshow(total_field_abs, [], Colormap=colormap('hot'));
 end
