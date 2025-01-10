@@ -80,6 +80,6 @@ function [total_field, Axis0, Axis1, Axis2] = loadField(files, phases)
     total_field = Snapshot0(:, 1) * (cosd(phases(1)) + 1j*sind(phases(1)));
     for i = 2:length(files)
         load(files(i));
-        total_field = total_field + Snapshot0(:, 1) * (cosd(phases(1)) + 1j*sind(phases(1)));
+        total_field = total_field + Snapshot0(:, 1) * (cosd(phases(i)) + 1j*sind(phases(i)));
     end
 end
