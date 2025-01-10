@@ -4,26 +4,31 @@ files = ["sensor_0.mat" "sensor_1.mat" "sensor_2.mat" "sensor_3.mat" ...
 center_slice = 225;  % slices for which homogeneity is scored
 b1_plus_fields = initialiseFieldsMatrix(files, center_slice);  % comment this out for faster runtime if files are loaded into workspace
 
-% alle fases 0 graden:
-% start_phases = [0 0 0 0 0 0 0 0];  % cov -> 0.2512
+% all phases 0 degrees:
+% start_phases = [0 0 0 0 0 0 0 0];
 
-% fases die de cirkel-hoek van de antennes in de array zijn:
-% start_phases = [90 135 180 -135 -90 -45 0 45];  % cov -> 0.2374
+% phases corresponding to circle-angle of antenna in array:
+% start_phases = [90 135 180 -135 -90 -45 0 45];
 
-% fases die de ellips-hoek van de antennes in de array zijn:
-% start_phases = [-90 -129 -180 129 90 51 0 -51];  % cov -> 0.2107
+% phases corresponding to ellipse-angle of antenna in array:
+start_phases = [-90 -129 -180 129 90 51 0 -51];
 
-% experimenteel succesvolle fases:
-start_phases = [-85 -124 -185 134 95 56 -5 -46];  % cov -> 0.2107
-% start_phases = [-83 -126 -187 136 97 54 -7 -48];  % cov -> 0.2107
+% experimentally succesful phases:
+% start_phases = [-85 -124 -185 134 95 56 -5 -46];
+% start_phases = [-83 -126 -187 136 97 54 -7 -48];
 
+% random phases:
 % start_phases = randi([-360 360], 1, 8);
 % disp("Start phases: "); disp(start_phases);
 
+% run phase optimiser
 phasesOptimiser = @(phases) phasesScorer(phases, b1_plus_fields);
 [optimised_phases, cofv] = fminunc(phasesOptimiser, start_phases);
+region_mean_strength = mean(abs(sum(phaseFields(b1_plus_fields, optimised_phases), 4)), "all", "omitnan");
+% display results
 disp("Best phases: "); disp(optimised_phases);
 disp("Score (cov): "); disp(cofv);
+disp("Region mean strength (Tesla): "); disp(region_mean_strength);
 
 
 %% optimiser functions
@@ -36,6 +41,15 @@ end
 
 %% homogeneity qualifier functions
 function cofv = cov(A)
+    At = A(~isnan(A));
+    S = std(At(:));
+    M = mean(At(:));
+    cofv = S / M;
+end
+
+
+function cofv = newCov(A)
+    % only usable in newer matlab versions
     [S, M] = std(A, 0, "all", "omitnan");
     cofv = S/M;
 end
