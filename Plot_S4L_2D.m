@@ -77,3 +77,40 @@ title(['Sim4Life simulation ', plane, '-section']);
 %clim([0 1e-5]);
 xlim([-0.4 0.4]);
 ylim([-0.4 0.4]);
+
+
+%% Load data
+function field = loadField(files, phases)
+    b1_plus_fields = initialiseFieldsMatrix(files);
+    phased_fields = phaseFields(b1_plus_fields, phases);    
+    field = abs(sum(phased_fields, 4));
+end
+
+
+function phased_field = phaseFields(B1_plus_fields, phases)
+    phased_field = B1_plus_fields;
+    for i = 1:length(phases)
+        phased_field(:,:,:, i) = phased_field(:,:,:, i) * (cosd(phases(i)) + 1j*sind(phases(i)));
+    end
+end
+
+
+function B1_plus_fields = initialiseFieldsMatrix(files)
+    B1_plus_fields = arrayfun(@(file) loadB1Plus(file), files, "UniformOutput", false);
+    B1_plus_fields = cat(4, B1_plus_fields{:});
+end
+
+
+function B1_plus = loadB1Plus(file_name)
+    load(file_name);
+
+    B1_plus_data = Snapshot0(:, 1);
+    
+    % Compute axis midpoints
+    Axis0_new = (Axis0(1:end-1) + Axis0(2:end)) / 2;
+    Axis1_new = (Axis1(1:end-1) + Axis1(2:end)) / 2;
+    Axis2_new = (Axis2(1:end-1) + Axis2(2:end)) / 2;
+    
+    % Reshape B1 field
+    B1_plus = reshape(B1_plus_data, [length(Axis0_new), length(Axis1_new), length(Axis2_new)]);
+end
