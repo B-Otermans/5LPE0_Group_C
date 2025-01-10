@@ -1,8 +1,8 @@
 %% function calls
 files = ["sensor_0.mat" "sensor_1.mat" "sensor_2.mat" "sensor_3.mat" ...
          "sensor_4.mat" "sensor_5.mat" "sensor_6.mat" "sensor_7.mat"];
-z_slices = 215:235;  % slices for which homogeneity is scored
-b1_plus_fields = initialiseFieldsMatrix(files, z_slices);  % comment this out for faster runtime if files are loaded into workspace
+center_slice = 225;  % slices for which homogeneity is scored
+b1_plus_fields = initialiseFieldsMatrix(files, center_slice);  % comment this out for faster runtime if files are loaded into workspace
 
 % alle fases 0 graden:
 % start_phases = [0 0 0 0 0 0 0 0];  % cov -> 0.2512
@@ -11,11 +11,14 @@ b1_plus_fields = initialiseFieldsMatrix(files, z_slices);  % comment this out fo
 % start_phases = [90 135 180 -135 -90 -45 0 45];  % cov -> 0.2374
 
 % fases die de ellips-hoek van de antennes in de array zijn:
-start_phases = [-90 -129 -180 129 90 51 0 -51];  % cov -> 0.2107
+% start_phases = [-90 -129 -180 129 90 51 0 -51];  % cov -> 0.2107
 
 % experimenteel succesvolle fases:
-% start_phases = [-85 -124 -185 134 95 56 -5 -46];  % cov -> 0.2107
+start_phases = [-85 -124 -185 134 95 56 -5 -46];  % cov -> 0.2107
 % start_phases = [-83 -126 -187 136 97 54 -7 -48];  % cov -> 0.2107
+
+% start_phases = randi([-360 360], 1, 8);
+% disp("Start phases: "); disp(start_phases);
 
 phasesOptimiser = @(phases) phasesScorer(phases, b1_plus_fields);
 [optimised_phases, cofv] = fminunc(phasesOptimiser, start_phases);
@@ -70,10 +73,10 @@ function phased_field = phaseFields(B1_plus_fields, phases)
 end
 
 
-function B1_plus_fields = initialiseFieldsMatrix(files, z_slices)
+function B1_plus_fields = initialiseFieldsMatrix(files, center_slice)
     B1_plus_fields = arrayfun(@(file) loadB1Plus(file), files, "UniformOutput", false);
     B1_plus_fields = cat(4, B1_plus_fields{:});
-    B1_plus_fields = double(B1_plus_fields(:,:, z_slices, :));
+    B1_plus_fields = double(B1_plus_fields(:,:, center_slice-10:center_slice+10, :));
 end
 
 
