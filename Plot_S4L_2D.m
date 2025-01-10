@@ -33,7 +33,7 @@ S4L_B1 = reshape(abs(B1_S4L), [length(Axis0_new), length(Axis1_new), length(Axis
 mid_y = round(length(Axis1_new) / 2);
 mid_z = round(length(Axis2_new) / 2);
 
-B1_1D = squeeze(B1_S4L_abs(:, mid_y, mid_z));
+B1_1D = squeeze(S4L_B1(:, mid_y, mid_z));
 
 figure;
 plot(Axis0_new, B1_1D);
