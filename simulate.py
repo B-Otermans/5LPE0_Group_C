@@ -163,6 +163,7 @@ def extract_singleports(simulation_name: str, relative_path: str):
     for i, s in enumerate(sensors):
         em_sensor = s["Bounding Box"]
         em_sensor.Normalization.Normalize = True
+        em_sensor.Normalization.AvailableReferences = u"Conducted Power(f)"
         document.AllAlgorithms.Add(em_sensor)
         inputs = [em_sensor.Outputs["B1(x,y,z,f0)"]]
         mask = analysis.core.FieldMaskingFilter(inputs=inputs)
