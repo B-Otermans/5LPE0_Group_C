@@ -187,3 +187,18 @@ def get_duke_materials():
     entities = model.AllEntities()
     materials = [m for m in entities if m.ReadOnly is True]
     return materials
+
+
+def set_phases(combiner_name: str, phases: list):
+    for alg in document.AllAlgorithms:
+        if alg.Name == combiner_name:
+            combiner = alg
+
+            for i, channel in enumerate(combiner.GetChannelWeights()):
+                combiner.SetChannelWeight(channel, 1, phases[i])
+
+            combiner.UpdateAttributes()
+            combiner.Update()
+            return None
+
+    print(f"No simulation combiner named '{combiner_name}' found")
