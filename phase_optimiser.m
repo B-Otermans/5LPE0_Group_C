@@ -10,7 +10,7 @@ b1_plus_fields = initialiseFieldsMatrix(files, center_slice);  % comment this ou
 % phases corresponding to circle-angle of antenna in array:
 % start_phases = [90 135 180 -135 -90 -45 0 45];
 
-% phases corresponding to ellipse-angle of antenna in array:
+% quadrature phases:
 start_phases = [-90 -129 -180 129 90 51 0 -51];
 
 % experimentally succesful phases:
@@ -19,16 +19,27 @@ start_phases = [-90 -129 -180 129 90 51 0 -51];
 
 % random phases:
 % start_phases = randi([-360 360], 1, 8);
-% disp("Start phases: "); disp(start_phases);
+
+% initial metrics
+start_field = abs(sum(phaseFields(b1_plus_fields, start_phases), 4));
+start_cov = cov(start_field);
+start_mean_strength = mean(start_field, "all", "omitnan");
 
 % run phase optimiser
 phasesOptimiser = @(phases) phasesScorer(phases, b1_plus_fields);
-[optimised_phases, cofv] = fminunc(phasesOptimiser, start_phases);
-region_mean_strength = mean(abs(sum(phaseFields(b1_plus_fields, optimised_phases), 4)), "all", "omitnan");
+[optimised_phases, optimised_cov] = fminunc(phasesOptimiser, start_phases);
+optimised_mean_strength = mean(abs(sum(phaseFields(b1_plus_fields, optimised_phases), 4)), "all", "omitnan");
+
 % display results
-disp("Best phases: "); disp(optimised_phases);
-disp("Score (cov): "); disp(cofv);
-disp("Region mean strength (Tesla): "); disp(region_mean_strength);
+disp("STARTING STATE");
+fprintf("Phases: %d %d %d %d %d %d %d %d\n", start_phases);
+fprintf("COV: %f\n", start_cov);
+fprintf("Mean (Tesla): %d\n\n", start_mean_strength);
+
+disp("OPTIMISED STATE");
+fprintf("Phases: %f %f %f %f %f %f %f %f\n", optimised_phases);
+fprintf("COV: %f\n", optimised_cov);
+fprintf("Mean (Tesla): %d\n\n", optimised_mean_strength);
 
 
 %% optimiser functions
