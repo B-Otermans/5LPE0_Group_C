@@ -3,6 +3,7 @@
 This repository contains the code used in the research report "An Optimal Fractionated Dipole Based Antenna for MRI Brain Imaging at 7T" for the course "Electromagnetic fields in MRI: theory, simulations, building and testing (5PLE0)" of the Technical University Eindhoven. This Readme functions as a concise documentation of the files used for the simulations and data analysis used in this project.
 ## Reproduction of results
 To reproduce the results presented in the report, one can follow this scheme:
+
 In Sim4Life:
 1.	_Load the Duke cV3-1 human model._
 2.	**setup_controls_duke.py**: run this file with the desired parameters for the fractionated dipole array.
@@ -11,6 +12,7 @@ In Sim4Life:
 5.	_Run the Sim4Life simulation._
 6.	**analysis_controls.py**: run this file to combine the simulation results for manual inspection, and to extract the B1 fields of each antenna to .mat files.
 7.	_Determine a slice along the Z-axis that will be the center of the region over which phase shimming will be optimized._
+
 In MATLAB:
 8.	**phase_optimiser.m**: supply the correct filenames that contain antenna data, the starting phases for each antenna, and the center slice that will determine the region for which B1+ homogeneity will be optimized. Then run this file to find optimal phases for phase shimming to achieve homogeneity.
 9.	_Note the resulting phases to use them for plotting the new field._
