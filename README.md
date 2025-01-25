@@ -16,6 +16,7 @@ In Sim4Life:
 7.	_Determine a slice along the Z-axis that will be the center of the region over which phase shimming will be optimized._
 
 In MATLAB:
+
 8.	**phase_optimiser.m**: supply the correct filenames that contain antenna data, the starting phases for each antenna, and the center slice that will determine the region for which B1+ homogeneity will be optimized. Then run this file to find optimal phases for phase shimming to achieve homogeneity.
 9.	_Note the resulting phases to use them for plotting the new field._
 10.	**Plot_S4L_2D.m**: supply the correct filenames and the wanted phases, then run this file to plot chosen slices along chosen planes.
