@@ -23,7 +23,7 @@ In MATLAB:
  
  ## File Descriptions
 The files are not ordered in folders, but they could be categorized into the following groups.
- #### Sim4Life Scripts
+ ### Sim4Life Scripts
 These files must be run in Sim4Life and can be subdivided into:
 
 **Control scripts**: These scripts split up three phases of Sim4Life simulation such that they can be run separately.
@@ -38,7 +38,7 @@ These files must be run in Sim4Life and can be subdivided into:
 - antennas.py: antenna and antenna array classes and functions.
 - simulate.py: simulation classes and functions.
 
-#### MATLAB Scripts
+### MATLAB Scripts
 These are a couple scripts that were used phase shimming optimization as well as data visualization and interpretation.
 - phase_optimiser.m: runs the algorithm that finds optimal phases for B1+ homogeneity.
 - Plot_S4L_2D.m: plotting function for B1+ fields.
