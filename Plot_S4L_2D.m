@@ -1,5 +1,4 @@
 %% Load data in Sim4Life
-B1 = 1;
 files = ["sensor_0.mat" "sensor_1.mat" "sensor_2.mat" "sensor_3.mat" ...
          "sensor_4.mat" "sensor_5.mat" "sensor_6.mat" "sensor_7.mat"];
 phases = [-85 -124 -185 134 95 56 -5 -46];
